@@ -22,8 +22,8 @@ We have tested the following versions of OS and softwares:
 a. Create a conda virtual environment and activate it.
 
 ```shell
-conda create -n open-mmlab python=3.7 -y
-conda activate open-mmlab
+conda create -n MRDet python=3.7 -y
+conda activate MRDet
 ```
 
 b. Install PyTorch stable or nightly and torchvision following the [official instructions](https://pytorch.org/), e.g.,
@@ -35,8 +35,8 @@ conda install pytorch torchvision -c pytorch
 c. Clone the mmdetection repository.
 
 ```shell
-git clone https://github.com/open-mmlab/mmdetection.git
-cd mmdetection
+git clone https://github.com/qinr/MRDet.git
+cd MRDet
 ```
 
 d. Install mmdetection (other dependencies will be installed automatically).
