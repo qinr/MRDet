@@ -86,7 +86,7 @@ mmdetection
 |   |   |          ├── images
 ```
 
-The DOTA images and labels have to be splitted using the code in [here](https://github.com/CAPTAIN-WHU/DOTA_devkit). You can also use the scripts in DOTA_devkit/prepare_dota1.py to obtain the splitted dataset. If you use codes in DOTA_devkit/, you need to install packages following https://github.com/CAPTAIN-WHU/DOTA_devkit. The DOTA annotations should be converted into the coco format using the scripts in DOTA_devkit/DOTA2COCO.py.
+The DOTA images and labels have to be splitted using the code [here](https://github.com/CAPTAIN-WHU/DOTA_devkit). You can also use the scripts in DOTA_devkit/prepare_dota1.py to obtain the splitted dataset. If you use codes in DOTA_devkit/, you need to install packages following https://github.com/CAPTAIN-WHU/DOTA_devkit. The DOTA annotations should be converted into the coco format using the scripts in DOTA_devkit/DOTA2COCO.py.
 
 
 ### Multiple versions
