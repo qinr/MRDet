@@ -5,7 +5,7 @@
 
 The master branch works with **PyTorch 1.1** or higher.
 
-MRDet is based on mmdetection. mmdetection is an open source object detection toolbox based on PyTorch. It is
+MRDet is based on mmdetection and AerialDetection(https://github.com/dingjiansw101/AerialDetection). mmdetection is an open source object detection toolbox based on PyTorch. It is
 a part of the open-mmlab project developed by [Multimedia Laboratory, CUHK](http://mmlab.ie.cuhk.edu.hk/)
 
 
@@ -13,46 +13,10 @@ a part of the open-mmlab project developed by [Multimedia Laboratory, CUHK](http
 
 This project is released under the [Apache 2.0 license](LICENSE).
 
-## Updates
+## Benchmark and Model Zoo
 
-v0.5.1 (20/10/2018)
-- Add BBoxAssigner and BBoxSampler, the `train_cfg` field in config files are restructured.
-- `ConvFCRoIHead` / `SharedFCRoIHead` are renamed to `ConvFCBBoxHead` / `SharedFCBBoxHead` for consistency.
-
-## Benchmark and model zoo
-
-Supported methods and backbones are shown in the below table.
-Results and models are available in the [Model zoo](docs/MODEL_ZOO.md).
-
-|                    | ResNet   | ResNeXt  | SENet    | VGG      | HRNet |
-|--------------------|:--------:|:--------:|:--------:|:--------:|:-----:|
-| RPN                | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Fast R-CNN         | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Faster R-CNN       | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Mask R-CNN         | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Cascade R-CNN      | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Cascade Mask R-CNN | ✓        | ✓        | ☐        | ✗        | ✓     |
-| SSD                | ✗        | ✗        | ✗        | ✓        | ✗     |
-| RetinaNet          | ✓        | ✓        | ☐        | ✗        | ✓     |
-| GHM                | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Mask Scoring R-CNN | ✓        | ✓        | ☐        | ✗        | ✓     |
-| FCOS               | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Double-Head R-CNN  | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Grid R-CNN (Plus)  | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Hybrid Task Cascade| ✓        | ✓        | ☐        | ✗        | ✓     |
-| Libra R-CNN        | ✓        | ✓        | ☐        | ✗        | ✓     |
-| Guided Anchoring   | ✓        | ✓        | ☐        | ✗        | ✓     |
-
-Other features
-- [x] DCNv2
-- [x] Group Normalization
-- [x] Weight Standardization
-- [x] OHEM
-- [x] Soft-NMS
-- [x] Generalized Attention
-- [x] GCNet
-- [x] Mixed Precision (FP16) Training
-
+You can find detailed configs in configs/mrdet
+The trained models are available at xxxxxxxx
 
 ## Installation
 
@@ -63,14 +27,8 @@ Please refer to [INSTALL.md](docs/INSTALL.md) for installation and dataset prepa
 
 Please see [GETTING_STARTED.md](docs/GETTING_STARTED.md) for the basic usage of MMDetection.
 
-## Contributing
 
-We appreciate all contributions to improve MMDetection. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.
 
-## Acknowledgement
-
-MMDetection is an open source project that is contributed by researchers and engineers from various colleges and companies. We appreciate all the contributors who implement their methods or add new features, as well as users who give valuable feedbacks.
-We wish that the toolbox and benchmark could serve the growing research community by providing a flexible toolkit to reimplement existing methods and develop their own new detectors.
 
 
 ## Citation
@@ -89,9 +47,14 @@ If you use this toolbox or benchmark in your research, please cite this project.
   journal= {arXiv preprint arXiv:1906.07155},
   year={2019}
 }
+@inproceedings{xia2018dota,
+  title={DOTA: A large-scale dataset for object detection in aerial images},
+  author={Xia, Gui-Song and Bai, Xiang and Ding, Jian and Zhu, Zhen and Belongie, Serge and Luo, Jiebo and Datcu, Mihai and Pelillo, Marcello and Zhang, Liangpei},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={3974--3983},
+  year={2018}
+}
+
 ```
 
 
-## Contact
-
-This repo is currently maintained by Kai Chen ([@hellock](http://github.com/hellock)), Jiangmiao Pang ([@OceanPang](https://github.com/OceanPang)), Jiaqi Wang ([@myownskyW7](https://github.com/myownskyW7)) and Yuhang Cao ([@yhcao6](https://github.com/yhcao6)).
