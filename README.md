@@ -5,8 +5,7 @@
 
 The master branch works with **PyTorch 1.1** or higher.
 
-MRDet is based on mmdetection and AerialDetection(https://github.com/dingjiansw101/AerialDetection). mmdetection is an open source object detection toolbox based on PyTorch. It is
-a part of the open-mmlab project developed by [Multimedia Laboratory, CUHK](http://mmlab.ie.cuhk.edu.hk/)
+MRDet is based on mmdetection and AerialDetection(https://github.com/dingjiansw101/AerialDetection). 
 
 
 ## License
@@ -26,9 +25,6 @@ Please refer to [INSTALL.md](docs/INSTALL.md) for installation and dataset prepa
 ## Get Started
 
 Please see [GETTING_STARTED.md](docs/GETTING_STARTED.md) for the basic usage of MMDetection.
-
-
-
 
 
 ## Citation
