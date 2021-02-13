@@ -22,35 +22,29 @@ python tools/test_dota.py ${CONFIG_FILE} ${CHECKPOINT_FILE} [--outdir ${RESULT_D
 
 Optional arguments:
 - `RESULT_DIR`: directory of the output results in pickle format and .txt format. 
-- `RESULT_FILE`: the filename of the output
-- `--show`: If specified, detection results will be plotted on the images and shown in a new window. It is only applicable to single GPU testing. Please make sure that GUI is available in your environment, otherwise you may encounter the error like `cannot connect to X server`.
+- `RESULT_FILE`: the filename of the output results in pickle format.
+- `--show`: If specified, detection results will be plotted on the images and shown in a new window. It is only applicable to single GPU testing. 
 
 Examples:
 
 Assume that you have already downloaded the checkpoints to `checkpoints/`.
 
-1. Test Faster R-CNN and show the results.
+1. Test MRDet and show the results.
 
 ```shell
-python tools/test.py configs/faster_rcnn_r50_fpn_1x.py \
-    checkpoints/faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth \
+python tools/test_dota.py configs/mrdet_r101_fpn_2x_dota.py \
+    checkpoints/mrdet_r101_fpn_2x_dota.pth \
+    --outdir eval/mrdet_r101_fpn_2x_dota \
+    --out dota_test.pkl \
     --show
 ```
 
-2. Test Mask R-CNN and evaluate the bbox and mask AP.
+2. Test MRDet with 8 GPUs.
 
 ```shell
-python tools/test.py configs/mask_rcnn_r50_fpn_1x.py \
-    checkpoints/mask_rcnn_r50_fpn_1x_20181010-069fa190.pth \
-    --out results.pkl --eval bbox segm
-```
-
-3. Test Mask R-CNN with 8 GPUs, and evaluate the bbox and mask AP.
-
-```shell
-./tools/dist_test.sh configs/mask_rcnn_r50_fpn_1x.py \
-    checkpoints/mask_rcnn_r50_fpn_1x_20181010-069fa190.pth \
-    8 --out results.pkl --eval bbox segm
+./tools/dist_test.sh configs/mrdet_r101_fpn_2x_dota.py \
+    checkpoints/mrdet_r101_fpn_2x_dota.pth \
+    8 --outdir eval/mrdet_r101_fpn_2x_dota --out dota_test.pkl
 ```
 
 
