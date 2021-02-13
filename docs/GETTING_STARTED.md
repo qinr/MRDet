@@ -32,7 +32,7 @@ Assume that you have already downloaded the checkpoints to `checkpoints/`.
 1. Test MRDet and show the results.
 
 ```shell
-python tools/test_dota.py configs/mrdet_r101_fpn_2x_dota.py \
+python tools/test_dota.py configs/mrdet/mrdet_r101_fpn_2x_dota.py \
     checkpoints/mrdet_r101_fpn_2x_dota.pth \
     --outdir eval/mrdet_r101_fpn_2x_dota \
     --out dota_test.pkl \
@@ -42,11 +42,15 @@ python tools/test_dota.py configs/mrdet_r101_fpn_2x_dota.py \
 2. Test MRDet with 8 GPUs.
 
 ```shell
-./tools/dist_test.sh configs/mrdet_r101_fpn_2x_dota.py \
+./tools/dist_test.sh configs/mrdet/mrdet_r101_fpn_2x_dota.py \
     checkpoints/mrdet_r101_fpn_2x_dota.pth \
     8 --outdir eval/mrdet_r101_fpn_2x_dota --out dota_test.pkl
 ```
-
+3. Obtain the result in .txt format
+```shell
+python tools/parse_results_dota.py --config configs/mrdet/mrdet_r101_fpn_2x_dota.py \
+    --outdir eval/mrdet_r101_fpn_2x_dota --pkl_file dota_test.pkl --type OBB
+```
 
 ## Train MRDet
 
