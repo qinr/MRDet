@@ -113,25 +113,6 @@ def mask_2_rbbox_list(mask_list):
     rbbox_list = map(mask_2_rbbox, mask_list)
     return list(rbbox_list)
 
-def choose_best_rroi(rroi):
-    """
-    There are many instances with large aspect ratio, so we choose the point, previous is long side,
-    after is short side, so it makes sure h < w
-    then angle % 180,
-    :param rroi: (x_ctr, y_ctr, w, h, angle)
-            shape: (n, 5)
-    :return: rroi_new: rroi with new representation
-    """
-    x_ctr, y_ctr, w, h, angle = copy.deepcopy(rroi[:, 0]), copy.deepcopy(rroi[:, 1]), \
-                                copy.deepcopy(rroi[:, 2]), copy.deepcopy(rroi[:, 3]), copy.deepcopy(rroi[:, 4])
-    indexes = w < h
-
-    rroi[indexes, 2] = h[indexes]
-    rroi[indexes, 3] = w[indexes]
-    rroi[indexes, 4] = rroi[indexes, 4] + math.pi / 2.
-    # TODO: check the module
-    rroi[:, 4] = rroi[:, 4] % (2 * math.pi)
-    return rroi
 
 def choose_best_match(rrois, gt_rrois):
     """
@@ -222,7 +203,7 @@ def hbbox2rbbox(hbboxes):
 
     return rbboxes
 
-def hbbox2rbboxRec_v1(hbboxes):
+def hbbox2rbboxRec(hbboxes):
     '''
     :param hbboxes: Tensor, (xmin, ymin, xmax, ymax)
     :return: rbboxes:Tensor, (x, y, w, h, theta)
@@ -242,108 +223,20 @@ def hbbox2rbboxRec_v1(hbboxes):
     return hbboxes_rec
 
 
-def hbboxList2rbboxRec_v1(hbboxes):
+def hbboxList2rbboxRec(hbboxes):
     '''
     :param hbboxes: list(Tensor), (xmin, ymin, xmax, ymax)
     :return: rbboxes: list(Tensor), (x, y, w, h, theta)
     '''
     recs = []
     for i in range(len(hbboxes)):
-        rec = hbbox2rbboxRec_v1(hbboxes[i])
+        rec = hbbox2rbboxRec(hbboxes[i])
         recs.append(rec)
     return recs
 
 
 
-def rbboxRec2Poly_v1(rbboxes, max_shape):
-    """
-    :param rbboxes: Tensor, (x_center, y_center, w, h, theta)
-    :param max_shape: [max_w, max_h]
-    :return: 
-        polys: Tensor, (x1, y1, x2, y2, x3, y3, x4, y4)
-    """
-
-    x_center = rbboxes[:, 0]
-    y_center = rbboxes[:, 1]
-    w = rbboxes[:, 2]
-    h = rbboxes[:, 3]
-    theta = rbboxes[:, 4]
-
-    x1 = w / 2.0
-    y1 = - h / 2.0
-    x2 = w / 2.0
-    y2 = h / 2.0
-    x3 = - w / 2.0
-    y3 = h / 2.0
-    x4 = - w / 2.0
-    y4 = - h / 2.0
-
-    local = torch.stack([x1, y1, x2, y2, x3, y3, x4, y4], dim=-1).view(-1, 4, 2)
-    local = local.permute(0, 2, 1)
-    center = torch.stack([x_center, x_center, x_center, x_center,
-                          y_center, y_center, y_center, y_center], dim=-1).view(-1, 2, 4)
-    R = theta.new_tensor([[[torch.cos(_theta), -torch.sin(_theta)],
-                           [torch.sin(_theta), torch.cos(_theta)]] for _theta in theta])
-    polys = [torch.mm(R[i], local[i]).add(center[i]) for i in range(rbboxes.shape[0])]
-    polys = torch.stack(polys, dim=0)
-
-    if max_shape is not None:
-        for i in range(polys.shape[0]):
-            polys[i, 0] = polys[i, 0].clamp(min=0, max=max_shape[1] - 1)
-            polys[i, 1] = polys[i, 1].clamp(min=0, max=max_shape[0] - 1)
-
-    polys = polys.permute(0, 2, 1).contiguous().view(polys.size(0), -1)
-
-    return polys
-
-def rbboxPolyList2RectangleList_v1(rbbox_list):
-    rec = map(rbboxPoly2Rectangle_v1, rbbox_list)
-    return list(rec)
-
-def rbboxPoly2Rectangle_v1(rbbox):
-    '''
-    :param rbboxes(Tensor):(x1,y2,x2,y2,x3,y3,x4,y4) 
-    :return: recs(Tensor):(x_center, y_center, w, h, theta)
-    theta范围(-pi, pi)
-    '''
-    if rbbox is None:
-        return None
-    if rbbox.size(0) == 0:
-        rec = rbbox.new_zeros(0, 5)
-        return rec
-    rbbox = rbbox.view(-1, 4, 2)
-    rbbox = rbbox.permute(0, 2, 1)
-    angle = torch.atan2(-(rbbox[:, 0, 1] - rbbox[:, 0, 0]), (rbbox[:, 1, 1] - rbbox[:, 1, 0]))
-    # angle = torch.atan2((rbbox[:, 1, 3] - rbbox[:, 1, 0]), (rbbox[:, 0, 3] - rbbox[:, 0, 0]))
-    center = rbbox.new_zeros((rbbox.shape[0], 2, 1))
-    for i in range(4):
-        center[:, 0, 0] += rbbox[:, 0, i]
-        center[:, 1, 0] += rbbox[:, 1, i]
-    center = center / 4.0
-
-    R = rbbox.new_tensor([[[torch.cos(_angle), -torch.sin(_angle)],
-                           [torch.sin(_angle), torch.cos(_angle)]] for _angle in angle])
-    RT = R.permute(0, 2, 1)
-    normalized = [torch.mm(RT[i], rbbox[i] - center[i]) for i in range(rbbox.shape[0])]  # list([Tensor])
-    normalized = torch.stack(normalized, dim=0)
-
-    xmin = torch.min(normalized[:, 0, :], dim=1)[0]
-    ymin = torch.min(normalized[:, 1, :], dim=1)[0]
-    xmax = torch.max(normalized[:, 0, :], dim=1)[0]
-    ymax = torch.max(normalized[:, 1, :], dim=1)[0]
-
-    w = xmax - xmin + 1
-    h = ymax - ymin + 1
-    angle = angle
-    x_center = center[:, 0, 0]
-    y_center = center[:, 1, 0]
-
-    rec = torch.stack([x_center, y_center, w, h, angle], dim=-1)
-
-    return rec
-
-
-def rec2delta_v1(roi_recs, gt_recs, means=[0, 0, 0, 0, 0], stds=[1, 1, 1, 1, 1]):
+def rec2delta(roi_recs, gt_recs, means=[0, 0, 0, 0, 0], stds=[1, 1, 1, 1, 1]):
     '''
     :param roi_recs(list): (xr,yr,wr,hr,thetar)
     :param gt_recs(list): (x*,y*,w*,h*,theta*)
@@ -378,19 +271,8 @@ def rec2delta_v1(roi_recs, gt_recs, means=[0, 0, 0, 0, 0], stds=[1, 1, 1, 1, 1])
     return deltas
 
 
-def rec2delta_best_match_v1(roi_recs, gt_recs, means=[0, 0, 0, 0, 0], stds=[1, 1, 1, 1, 1]):
-    '''
-    :param roi_recs:  (x, y, w, h, theta)
-    :param gt_recs: (x, y, w, h, theta)
-    :param means: 
-    :param stds: 
-    :return: 将gt_recs进行调整，使得其对应的roi_recs角度回归最方便（即角度相差小），再计算delta
-    '''
-    gt_recs_new = choose_best_match(roi_recs, gt_recs)
-    deltas = rec2delta_v1(roi_recs, gt_recs_new, means, stds)
-    return deltas
 
-def delta2rec_v1(deltas,
+def delta2rec(deltas,
               roi_recs,
               means=[0, 0, 0, 0, 0],
               stds=[1, 1, 1, 1, 1],
@@ -435,96 +317,6 @@ def delta2rec_v1(deltas,
     return torch.stack([x_pred, y_pred, w_pred, h_pred, theta_pred], dim=-1).view_as(deltas)
 
 
-def rec2delta_v2(roi_recs, gt_recs, means=[0, 0, 0, 0, 0], stds=[1, 1, 1, 1, 1]):
-    '''
-    :param roi_recs(list): (xr,yr,wr,hr,thetar)
-    :param gt_recs(list): (x*,y*,w*,h*,theta*)
-    :return: 
-        deltas(list):(tx,ty,tw,th,ttheta)
-    '''
-
-    x = roi_recs[:, 0]
-    y = roi_recs[:, 1]
-    w = roi_recs[:, 2]
-    h = roi_recs[:, 3]
-    theta = roi_recs[:, 4]
-
-    x_gt = gt_recs[:, 0]
-    y_gt = gt_recs[:, 1]
-    w_gt = gt_recs[:, 2]
-    h_gt = gt_recs[:, 3]
-    theta_gt = gt_recs[:, 4]
-
-    delta_x = (x_gt - x) / w
-    delta_y = (y_gt - y) / h
-    delta_w = torch.log(w_gt / w)
-    delta_h = torch.log(h_gt / h)
-    delta_theta = (theta_gt - theta)
-
-    deltas = torch.stack([delta_x, delta_y, delta_w, delta_h, delta_theta], dim=-1)
-
-    means = deltas.new_tensor(means).unsqueeze(0)
-    stds = deltas.new_tensor(stds).unsqueeze(0)
-    deltas = deltas.sub_(means).div_(stds)
-
-    return deltas
-
-
-def rec2delta_best_match_v2(roi_recs, gt_recs, means=[0, 0, 0, 0, 0], stds=[1, 1, 1, 1, 1]):
-    '''
-    :param roi_recs:  (x, y, w, h, theta)
-    :param gt_recs: (x, y, w, h, theta)
-    :param means: 
-    :param stds: 
-    :return: 将gt_recs进行调整，使得其对应的roi_recs角度回归最方便（即角度相差小），再计算delta
-    '''
-    gt_recs_new = choose_best_match(roi_recs, gt_recs)
-    deltas = rec2delta_v2(roi_recs, gt_recs_new, means, stds)
-    return deltas
-
-def delta2rec_v2(deltas,
-              roi_recs,
-              means=[0, 0, 0, 0, 0],
-              stds=[1, 1, 1, 1, 1],
-              max_shape=None,
-              wh_ratio_clip=16 / 1000):
-    '''
-    :param deltas: (tx,ty,tw,th,ttheta)
-    :param roi_recs: (x,y,w,h,theta)
-    :return: 
-        roi_preds:(x_pred,y_pred,w_pred,h_pred,theta_pred)
-    '''
-    means = deltas.new_tensor(means).repeat(1, deltas.size(1) // 5)
-    stds = deltas.new_tensor(stds).repeat(1, deltas.size(1) // 5)
-    deform_deltas = deltas * stds + means
-
-    delta_x = deform_deltas[:, 0::5]
-    delta_y = deform_deltas[:, 1::5]
-    delta_w = deform_deltas[:, 2::5]
-    delta_h = deform_deltas[:, 3::5]
-    delta_theta = deform_deltas[:, 4::5]
-
-    max_ratio = np.abs(np.log(wh_ratio_clip))
-    delta_w = delta_w.clamp(min=-max_ratio, max=max_ratio)
-    delta_h = delta_h.clamp(min=-max_ratio, max=max_ratio)
-    x =(roi_recs[:, 0]).unsqueeze(1).expand_as(delta_x)
-    y = (roi_recs[:, 1]).unsqueeze(1).expand_as(delta_y)
-    w = (roi_recs[:, 2]).unsqueeze(1).expand_as(delta_w)
-    h = (roi_recs[:, 3]).unsqueeze(1).expand_as(delta_h)
-    theta = (roi_recs[:, 4]).unsqueeze(1).expand_as(delta_theta)
-
-    # x_pred = w.mul(torch.cos(theta)).mul(delta_x) - h.mul(torch.sin(theta)).mul(delta_y) + x
-    # y_pred = w.mul(torch.sin(theta)).mul(delta_x) + h.mul(torch.cos(theta)).mul(delta_y) + y
-    # w_pred = w.mul(torch.exp(delta_w))
-    # h_pred = h.mul(torch.exp(delta_h))
-    # theta_pred = (delta_theta * 2 * math.pi + theta) % (2 * math.pi)
-
-    x_pred = delta_x * w + x
-    y_pred = delta_y * h + y
-    w_pred = w * delta_w.exp()
-    h_pred = h * delta_h.exp()
-    theta_pred = theta + delta_theta
-    return torch.stack([x_pred, y_pred, w_pred, h_pred, theta_pred], dim=-1).view_as(deltas)
 
 
 def rbbox2rroi(rbbox_list):
@@ -569,7 +361,4 @@ def rbbox2result(rbboxes, labels, num_classes):
         labels = labels.cpu().numpy()
         return [rbboxes[labels == i, :] for i in range(num_classes - 1)]
 
-if __name__ == '__main__':
-    rbbox = torch.Tensor([1, 0, 0, 0, 0, -2, 1, -2])
-    print(rbboxPoly2Rectangle_v1(rbbox))
 

@@ -3,8 +3,8 @@ import torch.nn as nn
 import copy
 from mmdet.core import (bbox2roi, build_assigner, build_sampler,
                         mask_2_rbbox_list, ndarray2tensor, rbbox2result,
-                        enlarge_bridge, get_best_begin_point_list, rbboxPoly2RectangleList_v2,
-                        rbboxPoly2Rectangle_v2, rbboxPoly2rroiRec,
+                        get_best_begin_point_list, rbboxPoly2RectangleList,
+                        rbboxPoly2Rectangle, rbboxPoly2rroiRec,
                         bbox_mapping, merge_aug_rotate_bboxes,
                         multiclass_poly_nms_8_points)
 from ..registry import DETECTORS
@@ -153,21 +153,15 @@ class MRDet(BaseDetector, RPNTestMixin, BBoxTestMixin):
                       gt_bboxes_ignore=None,
                       gt_masks=None,
                       proposals=None):
-        # torch.cuda.empty_cache()
-        # if img_meta[0]['mixup']:
-        #     pass
-        # if len(gt_bboxes[0]) > 500:
-        #     torch.cuda.empty_cache()
+
         x = self.extract_feat(img)
 
 
         gt_rbboxes_poly = mask_2_rbbox_list(gt_masks)  # list(ndarray)
         gt_rbboxes_poly = ndarray2tensor(gt_rbboxes_poly, gt_bboxes[0].device)
-        # gt_bboxes = rbbox2hbbox(gt_rbboxes_poly)
 
         gt_rbboxes_poly = get_best_begin_point_list(gt_rbboxes_poly)
-        # gt_rbboxes_poly = enlarge_bridge(gt_rbboxes_poly, gt_labels, 1.2, 1.6)
-        # gt_bboxes = rbbox2hbbox(gt_rbboxes_poly)
+
 
         losses = dict()
 
@@ -178,19 +172,10 @@ class MRDet(BaseDetector, RPNTestMixin, BBoxTestMixin):
                                           None,
                                           img_meta,
                                           self.train_cfg.rpn)
-            try:
-                # torch.cuda.empty_cache()
-                rpn_losses = self.rpn_head.loss(
-                    *rpn_loss_inputs, gt_bboxes_ignore=gt_bboxes_ignore)
-            except RuntimeError as exception:
-                if "out of memory" in str(exception):
-                    print("WARNING: out of memory")
-                    import pdb
-                    pdb.set_trace()
-                    if hasattr(torch.cuda, 'empty_cache'):
-                        torch.cuda.empty_cache()
-                    rpn_losses = self.rpn_head.loss(
-                        *rpn_loss_inputs, gt_bboxes_ignore=gt_bboxes_ignore)
+            # torch.cuda.empty_cache()
+            rpn_losses = self.rpn_head.loss(
+                *rpn_loss_inputs, gt_bboxes_ignore=gt_bboxes_ignore)
+
             losses.update(rpn_losses)
 
             proposal_cfg = self.train_cfg.get('rpn_proposal',
@@ -240,7 +225,7 @@ class MRDet(BaseDetector, RPNTestMixin, BBoxTestMixin):
                 bbox_reg_feats = self.shared_head(bbox_reg_feats)
             cls_score, bbox_xy_pred, bbox_wh_pred, bbox_theta_pred = self.bbox_head(bbox_cls_feats,
                                                   bbox_reg_feats)
-            gt_rbboxes_rec = rbboxPoly2RectangleList_v2(gt_rbboxes_poly)
+            gt_rbboxes_rec = rbboxPoly2RectangleList(gt_rbboxes_poly)
             bbox_targets = self.bbox_head.get_target_rbbox2rbbox(sampling_results,
                                                      gt_rbboxes_rec,
                                                      self.train_cfg.rcnn)
@@ -251,8 +236,6 @@ class MRDet(BaseDetector, RPNTestMixin, BBoxTestMixin):
                                             *bbox_targets)
             losses.update(loss_bbox)
 
-        if self.with_mask:
-            pass
 
         return losses
 
@@ -267,22 +250,15 @@ class MRDet(BaseDetector, RPNTestMixin, BBoxTestMixin):
 
         if self.with_bbox:
             rois = rbboxPoly2rroiRec(proposal_rotate_list)
-            # rois_enlarge = copy.deepcopy(rois)
-            # rois_enlarge[:, 3] = rois_enlarge[:, 3] * self.bbox_roi_extractor.w_enlarge
-            # rois_enlarge[:, 4] = rois_enlarge[:, 4] * self.bbox_roi_extractor.h_enlarge
             bbox_cls_feats = self.bbox_roi_extractor(x[:self.bbox_roi_extractor.num_inputs],
                                                      rois)
-            # bbox_cls_feats = self.bbox_roi_extractor(x[:self.bbox_roi_extractor.num_inputs],
-            #                                          rois,
-            #                                          roi_w_scale_factor=self.bbox_roi_extractor.w_enlarge,
-            #                                          roi_h_scale_factor=self.bbox_roi_extractor.h_enlarge)
             bbox_reg_feats = bbox_cls_feats
             if self.with_shared_head:
                 bbox_cls_feats = self.shared_head(bbox_cls_feats)
                 bbox_reg_feats = self.shared_head(bbox_reg_feats)
             cls_score, bbox_xy_pred, bbox_wh_pred, bbox_theta_pred = self.bbox_head(bbox_cls_feats, bbox_reg_feats)
 
-            img_shape=img_meta[0]['ori_shape']
+            img_shape = img_meta[0]['ori_shape']
             scale_factor = img_meta[0]['scale_factor']
             det_bboxes, det_labels = self.bbox_head.get_det_rbbox2rbbox(
                 rois,
@@ -323,13 +299,8 @@ class MRDet(BaseDetector, RPNTestMixin, BBoxTestMixin):
             proposals = [bbox_mapping(proposal_list[0][:, :8], img_shape,
                                      scale_factor, flip)]
             rois = rbboxPoly2rroiRec(proposals)
-            # rois_enlarge = copy.deepcopy(rois)
-            # rois_enlarge[:, 3] = rois_enlarge[:, 3] * self.bbox_roi_extractor.w_enlarge
-            # rois_enlarge[:, 4] = rois_enlarge[:, 4] * self.bbox_roi_extractor.h_enlarge
             bbox_cls_feats = self.bbox_roi_extractor(x[:self.bbox_roi_extractor.num_inputs],
-                                                     rois,
-                                                     roi_w_scale_factor=self.bbox_roi_extractor.w_enlarge,
-                                                     roi_h_scale_factor=self.bbox_roi_extractor.h_enlarge)
+                                                     rois)
             bbox_reg_feats = bbox_cls_feats
             if self.with_shared_head:
                 bbox_cls_feats = self.shared_head(bbox_cls_feats)

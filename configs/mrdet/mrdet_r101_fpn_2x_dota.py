@@ -22,7 +22,6 @@ model = dict(
         anchor_scales=[8],
         anchor_ratios=[0.5, 1.0, 2.0],
         anchor_strides=[4, 8, 16, 32, 64],
-        # anchor_strieds=[2, 4, 8, 16, 32],
         target_means_hbb=[.0, .0, .0, .0],
         target_stds_hbb=[1.0, 1.0, 1.0, 1.0],
         target_means_obb=[0.9, 0, 0, 0.9],
@@ -32,8 +31,6 @@ model = dict(
         loss_bbox=dict(type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0),
         loss_obb=dict(type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0)),
     bbox_roi_extractor=dict(
-        # w_enlarge=1.2,
-        # h_enlarge=1.2,
         type='SingleRRoIExtractor',
         roi_layer=dict(type='RRoIAlign', out_size=7, sample_num=2),
         out_channels=256,
@@ -54,8 +51,6 @@ model = dict(
         target_means=[0., 0., 0., 0., 0.],
         target_stds=[0.05, 0.05, 0.1, 0.1, 0.05],
         reg_class_agnostic=False,
-        # loss_cls=dict(
-        #     type='LabelSmoothCrossEntropyLoss', epsilon=0.1, loss_weight=1.0),
         loss_cls=dict(
             type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
         loss_bbox_xy=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0),
@@ -117,16 +112,13 @@ test_cfg = dict(
 )
 # dataset settings
 dataset_type = 'DOTADatasetCoco'
-data_root = 'data/DOTA_1024_200_1/'
-# data_root = 'data/DOTA_1024_200_1/'
+data_root = 'data/DOTA/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
-    # dict(type='MixUp', mixup_ratio=0.5, alpha=1.5, max_bbox_num=500),
     dict(type='RotateAugmentation', rotate_ratio=0.5, small_filter=4),
-    # dict(type='Resize', small_filter=6, resize_ratio=1, ratio_range=(0.6, 1), img_scale=(1024, 1024), keep_ratio=True),
     dict(type='Resize',  resize_ratio=1, img_scale=(1024, 1024), keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='Normalize', **img_norm_cfg),
@@ -176,7 +168,7 @@ data = dict(
         # img_prefix=data_root + 'test1024_ms/images',
         pipeline=test_pipeline))
 # optimizer
-optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizer = dict(type='SGD', lr=0.005, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
 lr_config = dict(

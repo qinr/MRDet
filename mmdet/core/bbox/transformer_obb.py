@@ -27,11 +27,11 @@ def hbbox2rbboxRec_v2(hbboxes):
 
     return hbboxes_rec
 
-def rbboxPoly2RectangleList_v2(rbbox_list):
-    rec = map(rbboxPoly2Rectangle_v2, rbbox_list)
+def rbboxPoly2RectangleList(rbbox_list):
+    rec = map(rbboxPoly2Rectangle, rbbox_list)
     return list(rec)
 
-def rbboxPoly2Rectangle_v2(rbbox):
+def rbboxPoly2Rectangle(rbbox):
     '''
     :param rbboxes(Tensor):(x1,y2,x2,y2,x3,y3,x4,y4) 
     :return: recs(Tensor):(x_center, y_center, w, h, theta)
@@ -79,7 +79,7 @@ def rbboxPoly2Rectangle_v2(rbbox):
 
     return rec
 
-def rbboxRec2Poly_v2(rbboxes, max_shape=None):
+def rbboxRec2Poly(rbboxes, max_shape=None):
     x_center = rbboxes[:, 0::5]
     y_center = rbboxes[:, 1::5]
     w = rbboxes[:, 2::5] - 1
@@ -127,7 +127,7 @@ def get_new_begin_point_v1(rbboxes):
             rbboxes_new[i, 2 * j + 1] = rbboxes[i, (2 * xmin_ind[i] + 2 * j + 1) % 8]
     return rbboxes_new
 
-def rec2target_v1(hbbox_rec, gt_rbbox_rec, means=[0, 0, 0, 0], stds=[1, 1, 1, 1]):
+def rec2target(hbbox_rec, gt_rbbox_rec, means=[0, 0, 0, 0], stds=[1, 1, 1, 1]):
     hbbox_w = hbbox_rec[:, 2]
     hbbox_h = hbbox_rec[:, 3]
     hbbox_theta = hbbox_rec[:, 4]
@@ -154,85 +154,6 @@ def rec2target_v1(hbbox_rec, gt_rbbox_rec, means=[0, 0, 0, 0], stds=[1, 1, 1, 1]
 
     return t
 
-def rec2target_v2(hbbox_rec, gt_rbbox_rec, means=[0, 0, 0], stds=[1, 1, 1]):
-    hbbox_w = hbbox_rec[:, 2]
-    hbbox_h = hbbox_rec[:, 3]
-    hbbox_theta = hbbox_rec[:, 4]
-
-    gt_rbbox_w = gt_rbbox_rec[:, 2]
-    gt_rbbox_h = gt_rbbox_rec[:, 3]
-    gt_rbbox_theta = gt_rbbox_rec[:, 4]
-
-    delta_theta = gt_rbbox_theta - hbbox_theta
-
-    delta_w = torch.log(gt_rbbox_w / hbbox_w)
-    delta_h = torch.log(gt_rbbox_h / hbbox_h)
-
-    t1 = torch.sin(delta_theta)
-
-    t = torch.stack([t1, delta_w, delta_h], dim=-1)
-
-    means = t.new_tensor(means).unsqueeze(0)
-    stds = t.new_tensor(stds).unsqueeze(0)
-    t = t.sub_(means).div_(stds)
-
-    return t
-
-def rec2target_v3(hbbox_rec, gt_rbbox_rec, means=[0, 0, 0], stds=[1, 1, 1]):
-    hbbox_w = hbbox_rec[:, 2]
-    hbbox_h = hbbox_rec[:, 3]
-    hbbox_theta = hbbox_rec[:, 4]
-
-    gt_rbbox_w = gt_rbbox_rec[:, 2]
-    gt_rbbox_h = gt_rbbox_rec[:, 3]
-    gt_rbbox_theta = gt_rbbox_rec[:, 4]
-
-    delta_theta = gt_rbbox_theta - hbbox_theta
-
-    delta_w = torch.log(gt_rbbox_w / hbbox_w)
-    delta_h = torch.log(gt_rbbox_h / hbbox_h)
-
-    t = torch.stack([delta_theta, delta_w, delta_h], dim=-1)
-
-    means = t.new_tensor(means).unsqueeze(0)
-    stds = t.new_tensor(stds).unsqueeze(0)
-    t = t.sub_(means).div_(stds)
-
-    return t
-
-def rec2target_v4(rbbox_rec, gt_rbbox_rec, means=[0, 0, 0, 0, 0, 0], stds=[1, 1, 1, 1, 1, 1]):
-    rbbox_x = rbbox_rec[:, 0]
-    rbbox_y = rbbox_rec[:, 1]
-    rbbox_w = rbbox_rec[:, 2]
-    rbbox_h = rbbox_rec[:, 3]
-    rbbox_theta = rbbox_rec[:, 4]
-
-    gt_rbbox_x = gt_rbbox_rec[:, 0]
-    gt_rbbox_y = gt_rbbox_rec[:, 1]
-    gt_rbbox_w = gt_rbbox_rec[:, 2]
-    gt_rbbox_h = gt_rbbox_rec[:, 3]
-    gt_rbbox_theta = gt_rbbox_rec[:, 4]
-
-    delta_x = (gt_rbbox_x - rbbox_x) / rbbox_w
-    delta_y = (gt_rbbox_y - rbbox_y) / rbbox_h
-
-    delta_theta = gt_rbbox_theta - rbbox_theta
-
-    delta_w = gt_rbbox_w / rbbox_w
-    delta_h = gt_rbbox_h / rbbox_h
-
-    t11 = torch.cos(delta_theta) * delta_w
-    t12 = -torch.sin(delta_theta) * delta_h
-    t21 = torch.sin(delta_theta) * delta_w
-    t22 = torch.cos(delta_theta) * delta_h
-
-    t = torch.stack([delta_x, delta_y, t11, t12, t21, t22], dim=-1)
-
-    means = t.new_tensor(means).unsqueeze(0)
-    stds = t.new_tensor(stds).unsqueeze(0)
-    t = t.sub_(means).div_(stds)
-
-    return t
 
 def delta2hbboxrec(rois,
                    deltas,
@@ -295,7 +216,7 @@ def delta2hbboxrec5(rois,
     rec = torch.stack([gx, gy, gw, gh, gtheta], dim=-1).view(deltas.size(0), -1)
     return rec
 
-def target2poly_v1(hbboxes,
+def target2poly(hbboxes,
                  obb_pred,
                  max_shape,
                  means=[0, 0, 0, 0],
@@ -337,214 +258,6 @@ def target2poly_v1(hbboxes,
         poly = poly.contiguous().view(poly.size(0), -1)
 
     return poly
-
-def target2poly_v1_circle(hbboxes,
-                 obb_pred,
-                 max_shape,
-                 means=[0, 0, 0, 0],
-                 stds=[1, 1, 1, 1]):
-    means = obb_pred.new_tensor(means).repeat(1, obb_pred.size(1) // 4)
-    stds = obb_pred.new_tensor(stds).repeat(1, obb_pred.size(1) // 4)
-    deform_obb_pred = obb_pred * stds + means
-
-    t11 = deform_obb_pred[:, 0::4]
-    t12 = deform_obb_pred[:, 1::4]
-    t21 = deform_obb_pred[:, 2::4]
-    t22 = deform_obb_pred[:, 3::4]
-
-    # 强制storage-tank(10)和roundant(12)水平
-    t11[:, 10] = 1
-    t11[:, 12] = 1
-    t12[:, 10] = 0
-    t12[:, 12] = 0
-    t21[:, 10] = 0
-    t21[:, 12] = 0
-    t22[:, 10] = 1
-    t22[:, 12] = 1
-
-    x_center = hbboxes[:, 0::4]
-    y_center = hbboxes[:, 1::4]
-    w = hbboxes[:, 2::4] - 1
-    h = hbboxes[:, 3::4] - 1
-
-    x1 = (-w / 2.0) * t11 + (-h / 2.0) * t12 + x_center
-    y1 = (-w / 2.0) * t21 + (-h / 2.0) * t22 + y_center
-    x2 = (w / 2.0) * t11 + (-h / 2.0) * t12 + x_center
-    y2 = (w / 2.0) * t21 + (-h / 2.0) * t22 + y_center
-    x3 = (w / 2.0) * t11 + (h / 2.0) * t12 + x_center
-    y3 = (w / 2.0) * t21 + (h / 2.0) * t22 + y_center
-    x4 = (-w / 2.0) * t11 + (h / 2.0) * t12 + x_center
-    y4 = (-w / 2.0) * t21 + (h / 2.0) * t22 + y_center
-
-    poly = torch.cat([x1.clamp(min=0, max=max_shape[1] - 1),
-                      y1.clamp(min=0, max=max_shape[0] - 1),
-                      x2.clamp(min=0, max=max_shape[1] - 1),
-                      y2.clamp(min=0, max=max_shape[0] - 1),
-                      x3.clamp(min=0, max=max_shape[1] - 1),
-                      y3.clamp(min=0, max=max_shape[0] - 1),
-                      x4.clamp(min=0, max=max_shape[1] - 1),
-                      y4.clamp(min=0, max=max_shape[0] - 1)], dim=-1)
-    if obb_pred.size(1) != 4:
-        poly = poly.view(poly.size(0), 8, -1)
-        poly = poly.permute(0, 2, 1)
-        poly = poly.contiguous().view(poly.size(0), -1)
-
-    return poly
-
-def target2poly_v2(hbboxes,
-                 obb_pred,
-                 max_shape,
-                 means=[0, 0, 0],
-                 stds=[1, 1, 1],
-                 wh_ratio_clip=16 / 1000):
-    means = obb_pred.new_tensor(means).repeat(1, obb_pred.size(1) // 3)
-    stds = obb_pred.new_tensor(stds).repeat(1, obb_pred.size(1) // 3)
-    deform_obb_pred = obb_pred * stds + means
-
-    delta_sin = deform_obb_pred[:, 0::3]
-    delta_w = deform_obb_pred[:, 1::3]
-    delta_h = deform_obb_pred[:, 2::3]
-    max_ratio = np.abs(np.log(wh_ratio_clip))
-    delta_w = delta_w.clamp(min=-max_ratio, max=max_ratio)
-    delta_h = delta_h.clamp(min=-max_ratio, max=max_ratio)
-    delta_w = delta_w.exp()
-    delta_h = delta_h.exp()
-    delta_cos = torch.sqrt(1 - delta_sin * delta_sin)
-
-    x_center = hbboxes[:, 0::4]
-    y_center = hbboxes[:, 1::4]
-    w = hbboxes[:, 2::4]
-    h = hbboxes[:, 3::4]
-
-    t11 = delta_cos * delta_w
-    t12 = -delta_sin * delta_h
-    t21 = delta_sin * delta_w
-    t22 = delta_cos * delta_h
-
-    x1 = (-w / 2.0) * t11 + (-h / 2.0) * t12 + x_center
-    y1 = (-w / 2.0) * t21 + (-h / 2.0) * t22 + y_center
-    x2 = (w / 2.0) * t11 + (-h / 2.0) * t12 + x_center
-    y2 = (w / 2.0) * t21 + (-h / 2.0) * t22 + y_center
-    x3 = (w / 2.0) * t11 + (h / 2.0) * t12 + x_center
-    y3 = (w / 2.0) * t21 + (h / 2.0) * t22 + y_center
-    x4 = (-w / 2.0) * t11 + (h / 2.0) * t12 + x_center
-    y4 = (-w / 2.0) * t21 + (h / 2.0) * t22 + y_center
-
-    poly = torch.cat([x1.clamp(min=0, max=max_shape[1] - 1),
-                      y1.clamp(min=0, max=max_shape[0] - 1),
-                      x2.clamp(min=0, max=max_shape[1] - 1),
-                      y2.clamp(min=0, max=max_shape[0] - 1),
-                      x3.clamp(min=0, max=max_shape[1] - 1),
-                      y3.clamp(min=0, max=max_shape[0] - 1),
-                      x4.clamp(min=0, max=max_shape[1] - 1),
-                      y4.clamp(min=0, max=max_shape[0] - 1)], dim=-1)
-    poly = poly.view(poly.size(0), 8, -1)
-    poly = poly.permute(0, 2, 1)
-    poly = poly.contiguous().view(poly.size(0), -1)
-
-    return poly
-
-def target2poly_v3(rbboxes,
-                 obb_pred,
-                 max_shape,
-                 means=[0, 0, 0, 0, 0, 0],
-                 stds=[1, 1, 1, 1, 1, 1]):
-    means = obb_pred.new_tensor(means).repeat(1, obb_pred.size(1) // 6)
-    stds = obb_pred.new_tensor(stds).repeat(1, obb_pred.size(1) // 6)
-    deform_obb_pred = obb_pred * stds + means
-
-
-    t11 = deform_obb_pred[:, 2::6]
-    t12 = deform_obb_pred[:, 3::6]
-    t21 = deform_obb_pred[:, 4::6]
-    t22 = deform_obb_pred[:, 5::6]
-
-    w = rbboxes[:, 2::5] - 1
-    h = rbboxes[:, 3::5] - 1
-    x_center = rbboxes[:, 0::5] + deform_obb_pred[:, 0::6] * w
-    y_center = rbboxes[:, 1::5] + deform_obb_pred[:, 1::6] * h
-    theta = rbboxes[:, 4::5]
-    costheta = torch.cos(theta)
-    sintheta = torch.sin(theta)
-
-    x1_local = (-w / 2.0) * t11 + (-h / 2.0) * t12
-    y1_local = (-w / 2.0) * t21 + (-h / 2.0) * t22
-    x2_local = (w / 2.0) * t11 + (-h / 2.0) * t12
-    y2_local = (w / 2.0) * t21 + (-h / 2.0) * t22
-    x3_local = (w / 2.0) * t11 + (h / 2.0) * t12
-    y3_local = (w / 2.0) * t21 + (h / 2.0) * t22
-    x4_local = (-w / 2.0) * t11 + (h / 2.0) * t12
-    y4_local = (-w / 2.0) * t21 + (h / 2.0) * t22
-
-    x1 = costheta * x1_local - sintheta * y1_local + x_center
-    y1 = sintheta * x1_local + costheta * y1_local + y_center
-    x2 = costheta * x2_local - sintheta * y2_local + x_center
-    y2 = sintheta * x2_local + costheta * y2_local + y_center
-    x3 = costheta * x3_local - sintheta * y3_local + x_center
-    y3 = sintheta * x3_local + costheta * y3_local + y_center
-    x4 = costheta * x4_local - sintheta * y4_local + x_center
-    y4 = sintheta * x4_local + costheta * y4_local + y_center
-
-    poly = torch.cat([x1.clamp(min=0, max=max_shape[1] - 1),
-                      y1.clamp(min=0, max=max_shape[0] - 1),
-                      x2.clamp(min=0, max=max_shape[1] - 1),
-                      y2.clamp(min=0, max=max_shape[0] - 1),
-                      x3.clamp(min=0, max=max_shape[1] - 1),
-                      y3.clamp(min=0, max=max_shape[0] - 1),
-                      x4.clamp(min=0, max=max_shape[1] - 1),
-                      y4.clamp(min=0, max=max_shape[0] - 1)], dim=-1)
-    if obb_pred.size(1) != 4:
-        poly = poly.view(poly.size(0), 8, -1)
-        poly = poly.permute(0, 2, 1)
-        poly = poly.contiguous().view(poly.size(0), -1)
-
-    return poly
-
-
-def enlarge_bridge(gt_rbboxes_poly_list, gt_labels_list, **kwargs):
-    func = partial(enlarge_bridge_single, **kwargs) if kwargs else enlarge_bridge_single
-    gt_rbboxes_rec_adjust = map(func, gt_rbboxes_poly_list, gt_labels_list)
-    return list(gt_rbboxes_rec_adjust)
-
-
-def enlarge_bridge_single(gt_rbboxes_poly,
-                        gt_labels,
-                        w_enlarge=1.2,
-                        h_enlarge=1.4,
-                        max_shape=None):
-    # 对于bridge类别，调整gt_rbbox，长边 * 1.2， 短边 * 1.4
-    gt_rbboxes_rec = rbboxPoly2Rectangle_v2(gt_rbboxes_poly)
-    inds_bridge = (gt_labels == 3)
-    inds1 = (gt_rbboxes_rec[:, 2] > gt_rbboxes_rec[:, 3])
-    inds1 = (inds_bridge + inds1) == 2
-    gt_rbboxes_rec[inds1, 2] = gt_rbboxes_rec[inds1, 2] * w_enlarge
-    gt_rbboxes_rec[inds1, 3] = gt_rbboxes_rec[inds1, 3] * h_enlarge
-    inds2 = (gt_rbboxes_rec[:, 2] <= gt_rbboxes_rec[:, 3])
-    inds2 = (inds_bridge + inds2) == 2
-    gt_rbboxes_rec[inds2, 2] = gt_rbboxes_rec[inds2, 2] * h_enlarge
-    gt_rbboxes_rec[inds2, 3] = gt_rbboxes_rec[inds2, 3] * w_enlarge
-    gt_rbboxes_poly_new = rbboxRec2Poly_v2(gt_rbboxes_rec, max_shape)
-    return gt_rbboxes_poly_new
-
-def shrink_bridge_single(det_bboxes,
-                         det_labels,
-                         max_shape=None,
-                         w_enlarge=1.2,
-                         h_enlarge=1.4):
-    if len(det_bboxes) == 0:
-        return det_bboxes
-    det_bboxes_rec = rbboxPoly2Rectangle_v2(det_bboxes[:, :8])
-    inds_bridge = (det_labels == 2)
-    inds1 = (det_bboxes_rec[:, 2] > det_bboxes_rec[:, 3])
-    inds1 = (inds_bridge + inds1) == 2
-    det_bboxes_rec[inds1, 2] = det_bboxes_rec[inds1, 2] / w_enlarge
-    det_bboxes_rec[inds1, 3] = det_bboxes_rec[inds1, 3] / h_enlarge
-    inds2 = (det_bboxes_rec[:, 2] <= det_bboxes_rec[:, 3])
-    inds2 = (inds_bridge + inds2) == 2
-    det_bboxes_rec[inds2, 2] = det_bboxes_rec[inds2, 2] / h_enlarge
-    det_bboxes_rec[inds2, 3] = det_bboxes_rec[inds2, 3] / w_enlarge
-    det_bboxes_poly_new = rbboxRec2Poly_v2(det_bboxes_rec, max_shape)
-    return torch.cat([det_bboxes_poly_new, det_bboxes[:, 8, None]], dim=-1)
 
 
 def poly2bbox(polys):
@@ -583,7 +296,7 @@ def rbboxPoly2rroiRec(rbbox_list):
     for img_id, bboxes in enumerate(rbbox_list):
         if bboxes.size(0) > 0:
             img_inds = bboxes.new_full((bboxes.size(0), 1), img_id)
-            bboxes = rbboxPoly2Rectangle_v2(bboxes[:, :8])
+            bboxes = rbboxPoly2Rectangle(bboxes[:, :8])
             rrois = torch.cat([img_inds, bboxes[:, :5]], dim=-1)
         else:
             rrois = bboxes.new_zeros((0, 6))
@@ -604,8 +317,3 @@ def hbbox2rec(hbboxes):
     return hbboxes_rec
 
 
-if __name__ == '__main__':
-    rbbox = torch.Tensor([[1,1,2,1,2,8,1,8],
-                          [1,2,2,1,10,5,9,6]])
-    label=torch.Tensor([3,0])
-    print(enlarge_bridge_single(rbbox, label))

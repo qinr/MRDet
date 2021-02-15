@@ -8,14 +8,14 @@ from .registry import DATASETS
 from .voc import VOCDataset
 from .wider_face import WIDERFaceDataset
 from .xml_style import XMLDataset
-from .dota import DOTADatasetVOC, DOTADatasetCoco, DOTADatasetCocoH
+from .dota import DOTADatasetCoco
 from .hrsc2016 import HRSC2016DatasetCoco, HRSC2016DatasetVOCH
 
 __all__ = [
     'CustomDataset', 'XMLDataset', 'CocoDataset', 'VOCDataset',
     'CityscapesDataset', 'GroupSampler', 'DistributedGroupSampler',
     'build_dataloader', 'ConcatDataset', 'RepeatDataset', 'WIDERFaceDataset',
-    'DATASETS', 'build_dataset', 'DOTADatasetVOC',
+    'DATASETS', 'build_dataset',
     'DOTADatasetCoco', 'HRSC2016DatasetCoco',
-    'HRSC2016DatasetVOCH', 'DOTADatasetCocoH'
+    'HRSC2016DatasetVOCH'
 ]

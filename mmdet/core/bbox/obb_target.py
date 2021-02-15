@@ -1,11 +1,10 @@
 import torch
 from .transforms import delta2bbox
-from .transformer_obb import (rbboxPoly2Rectangle_v2, rec2target_v2,
-                             hbbox2rbboxRec_v2, rec2target_v3, rec2target_v1,
-                              delta2hbboxrec, rec2target_v4)
+
 from ..utils import multi_apply
-from .transformer_rbbox import (hbbox2rbboxRec_v1, rec2delta_v1, get_best_begin_point,
-                                rbboxPoly2Rectangle_v1, choose_best_match)
+from .transformer_obb import rbboxPoly2Rectangle, rec2target
+from .transformer_rbbox import (hbbox2rbboxRec, rec2delta, get_best_begin_point,
+                                choose_best_match)
 
 
 def obb_target_v1(pos_bboxes_list,
@@ -75,12 +74,12 @@ def obb_target_v1_single(pos_bboxes,
                                        -1, 4)[pos_inds, pos_gt_labels]
     pos_hbbox_pred = delta2bbox(pos_bboxes, pos_bbox_pred, target_means_hbb, target_stds_hbb)
 
-    pos_gt_rbboxes_rec = rbboxPoly2Rectangle_v2(pos_gt_rbboxes_poly)
-    pos_hbboxes_rec = hbbox2rbboxRec_v2(pos_hbbox_pred)
+    pos_gt_rbboxes_rec = rbboxPoly2Rectangle(pos_gt_rbboxes_poly)
+    pos_hbboxes_rec = hbbox2rbboxRec(pos_hbbox_pred)
 
 
     if num_pos > 0:
-        pos_obb_targets = rec2target_v1(pos_hbboxes_rec,
+        pos_obb_targets = rec2target(pos_hbboxes_rec,
                                             pos_gt_rbboxes_rec,
                                             target_means_obb,
                                             target_stds_obb)
@@ -142,7 +141,7 @@ def rbbox_target_obb_single(pos_rbboxes,
     bbox_targets = pos_rbboxes.new_zeros(num_samples, 6)
     bbox_weights = pos_rbboxes.new_zeros(num_samples, 6)
 
-    pos_rbboxes_rec = rbboxPoly2Rectangle_v2(pos_rbboxes)
+    pos_rbboxes_rec = rbboxPoly2Rectangle(pos_rbboxes)
     pos_gt_rbboxes_rec = gt_rbboxes_rec[pos_assigned_gt_inds]
     pos_gt_rbboxes_rec = choose_best_match(pos_rbboxes_rec, pos_gt_rbboxes_rec)
     if num_pos > 0:
@@ -152,7 +151,7 @@ def rbbox_target_obb_single(pos_rbboxes,
         # 目标pos_gt_bboxes和pos_bboxes满足w>h的条件
         # 表示两者的方向要么差不多一致，要么相差近180
         # 调整pos_gt_bboxes的方向，使其与pos_bboxes满足差不多一致的状态，便于回归
-        pos_bbox_targets = rec2target_v4(pos_rbboxes_rec,
+        pos_bbox_targets = rec2target(pos_rbboxes_rec,
                                         pos_gt_rbboxes_rec,
                                         target_means,
                                         target_stds)

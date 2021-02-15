@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from .base_rotation_sampler import  BaseRotationSampler
+from .base_rotation_sampler import BaseRotationSampler
 from .sampling_result import SamplingResult
 
 

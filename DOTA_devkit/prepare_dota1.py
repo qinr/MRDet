@@ -10,7 +10,7 @@ import argparse
 wordname_15 = ['plane', 'baseball-diamond', 'bridge', 'ground-track-field', 'small-vehicle', 'large-vehicle', 'ship', 'tennis-court',
                 'basketball-court', 'storage-tank',  'soccer-ball-field', 'roundabout', 'harbor', 'swimming-pool', 'helicopter']
 
-wordname_1 = ['swimming-pool']
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='prepare dota1')
@@ -76,7 +76,7 @@ def prepare(srcpath, dstpath):
                       subsize=1024,
                       num_process=32
                       )
-    split_train.splitdata(0.5)
+    split_train.splitdata(1)
 
     split_val = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'val'),
                        os.path.join(dstpath, 'trainval1024'),
@@ -84,7 +84,7 @@ def prepare(srcpath, dstpath):
                       subsize=1024,
                       num_process=32
                       )
-    split_val.splitdata(0.5)
+    split_val.splitdata(1)
 
     split_test = SplitOnlyImage_multi_process.splitbase(os.path.join(srcpath, 'test', 'images'),
                        os.path.join(dstpath, 'test1024', 'images'),
@@ -92,7 +92,7 @@ def prepare(srcpath, dstpath):
                       subsize=1024,
                       num_process=32
                       )
-    split_test.splitdata(0.5)
+    split_test.splitdata(1)
 
     DOTA2COCOTrain(os.path.join(dstpath, 'trainval1024'), os.path.join(dstpath, 'trainval1024', 'DOTA_trainval1024.json'), wordname_15, difficult='-1')
     DOTA2COCOTest(os.path.join(dstpath, 'test1024'), os.path.join(dstpath, 'test1024', 'DOTA_test1024.json'), wordname_15)

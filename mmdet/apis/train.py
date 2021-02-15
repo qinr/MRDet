@@ -37,7 +37,7 @@ def parse_losses(losses):
 
 def batch_processor(model, data, train_mode):
     # 处理一个batch数据的函数，返回值为dict类型，含loss
-    # torch.cuda.empty_cache() # qr
+    # torch.cuda.empty_cache()
 
     try:
         losses = model(**data)

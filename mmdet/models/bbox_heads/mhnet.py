@@ -10,9 +10,9 @@ from ..plugins import CenterPooling
 from ..losses import accuracy
 from ..builder import build_loss
 import torch.nn.functional as F
-from mmdet.core import (auto_fp16,  force_fp32, delta2rec_v2, delta2rec_v1,
-                        multiclass_poly_nms_rec, multiclass_poly_nms_8_points,
-                        rbboxRec2Poly_v2)
+from mmdet.core import (auto_fp16,  force_fp32, delta2rec,
+                        multiclass_poly_nms_8_points,
+                        rbboxRec2Poly)
 
 @HEADS.register_module
 class MHNet(BBoxHeadOBB):
@@ -257,7 +257,7 @@ class MHNet(BBoxHeadOBB):
         bbox_pred = bbox_pred_temp.view(bbox_pred_temp.size(0), -1)
 
         if bbox_pred is not None:
-            rbboxes_rec = delta2rec_v1(bbox_pred, rrois[:, 1:], self.target_means,
+            rbboxes_rec = delta2rec(bbox_pred, rrois[:, 1:], self.target_means,
                                            self.target_stds, img_shape)
         else:
             rbboxes_rec = rrois[:, 1:]
@@ -267,7 +267,7 @@ class MHNet(BBoxHeadOBB):
             rbboxes_rec[:, 1::5] /= scale_factor
             rbboxes_rec[:, 2::5] /= scale_factor
             rbboxes_rec[:, 3::5] /= scale_factor
-        rbboxes_poly = rbboxRec2Poly_v2(rbboxes_rec, img_shape)
+        rbboxes_poly = rbboxRec2Poly(rbboxes_rec, img_shape)
         if cfg is None:
             return rbboxes_poly, scores
         else:

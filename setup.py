@@ -165,7 +165,7 @@ if __name__ == '__main__':
                 name='soft_nms_cpu',
                 module='mmdet.ops.nms',
                 sources=['src/soft_nms_cpu.pyx']),
-            #######################################
+            ########add poly_soft_nms_cpu#########
             make_cython_ext(
                 name='poly_soft_nms_cpu',
                 module='mmdet.ops.poly_nms',
@@ -217,12 +217,6 @@ if __name__ == '__main__':
                 name='poly_nms_cuda',
                 module='mmdet.ops.poly_nms',
                 sources=['src/poly_nms_cuda.cpp', 'src/poly_nms_kernel.cu']),
-            ############### add gcn ############################
-            make_cuda_ext(
-                name='gcn_cuda',
-                module='mmdet.ops.gcn',
-                sources=['csrc/vision.cpp', 'csrc/cpu/GOF_cpu.cpp',
-                         'csrc/cuda/GOF_cuda.cu']),
             ##################################################
             make_cuda_ext(
                 name='deform_conv_cuda',

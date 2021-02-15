@@ -347,17 +347,6 @@ def main():
         print('\nwriting results to {}'.format(args.out))
         mmcv.dump(outputs, osp.join(args.outdir, args.out))
 
-    # 将结果保存到Task1_results_no_merge，未合并
-    # outdir1 = osp.join(args.outdir, 'Task1_results_no_merge')
-    # if not osp.exists(outdir1):
-    #    os.mkdir(outdir1)
-    # write_dota_results(outdir1, outputs, dataset, threshold=0.001)
-
-    # 将结果保存到Task1_results_merge中，合并,nms=0.1
-    # outdir2 = osp.join(args.outdir, 'Task1_results_merge_nms')
-    # if not osp.exists(outdir2):
-    #    os.mkdir(outdir2)
-    # mergebypoly_multiprocess(outdir1, outdir2)
 
 
 

@@ -6,8 +6,7 @@ import torch.nn as nn
 from mmcv.cnn import normal_init
 
 from mmdet.core import (AnchorGenerator, orient_anchor_target, force_fp32,
-                        multi_apply, multiclass_poly_nms_8_points, delta2hbboxrec,
-                        target2poly_v1, delta2bbox, hbbox2rec)
+                        multi_apply, target2poly, delta2bbox, hbbox2rec)
 from ..builder import build_loss
 from ..registry import HEADS
 import torch.nn.functional as F
@@ -52,7 +51,7 @@ class AO_RPNHead(nn.Module):
                      type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0),
                  loss_obb=dict(
                      type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0)):
-        super(OrientAnchorHead, self).__init__()
+        super(AO_RPNHead, self).__init__()
         self.in_channels = in_channels
         self.num_classes = num_classes
         self.feat_channels = feat_channels # 在子类中使用，例如RPNHead
@@ -404,7 +403,7 @@ class AO_RPNHead(nn.Module):
                 # proposals = proposals[valid_inds, :]
                 proposals_rec = proposals_rec[valid_inds, :]
                 scores = scores[valid_inds]
-            proposals_rotate = target2poly_v1(proposals_rec, obb_pred, img_shape,
+            proposals_rotate = target2poly(proposals_rec, obb_pred, img_shape,
                                        self.target_means_obb, self.target_stds_obb)
             proposals_rotate = torch.cat([proposals_rotate, scores.unsqueeze(-1)], dim=-1)
             proposals_rotate, _ = poly_nms(proposals_rotate, cfg.nms_thr)  # 根据nms_thr完成NMS

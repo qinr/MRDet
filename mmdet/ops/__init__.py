@@ -11,7 +11,6 @@ from .sigmoid_focal_loss import SigmoidFocalLoss, sigmoid_focal_loss
 from .psroi_pool import  PSRoIPool, psroi_pool
 from .psroi_align import PSRoIAlign, psroi_align
 from .rpsroi_align import RPSRoIAlign, rpsroi_align
-from .poly_iou_nms import rbbox_overlaps
 from .poly_nms import poly_nms
 from .rroi_align import RRoIAlign
 from .cpools import RightPool, LeftPool, BottomPool, TopPool
@@ -25,6 +24,6 @@ __all__ = [
     'deform_roi_pooling', 'SigmoidFocalLoss', 'sigmoid_focal_loss',
     'MaskedConv2d', 'ContextBlock', 'PSRoIPool', 'psroi_pool',
     'PSRoIAlign', 'psroi_align', 'RPSRoIAlign', 'rpsroi_align',
-    'rbbox_overlaps', 'poly_nms', 'RRoIAlign',
+    'poly_nms', 'RRoIAlign',
     'BottomPool', 'TopPool', 'LeftPool', 'RightPool'
 ]
