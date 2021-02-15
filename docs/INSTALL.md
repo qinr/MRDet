@@ -22,8 +22,8 @@ We have tested the following versions of OS and softwares:
 a. Create a conda virtual environment and activate it.
 
 ```shell
-conda create -n open-mmlab python=3.7 -y
-conda activate open-mmlab
+conda create -n MRDet python=3.7 -y
+conda activate MRDet
 ```
 
 b. Install PyTorch stable or nightly and torchvision following the [official instructions](https://pytorch.org/), e.g.,
@@ -35,8 +35,8 @@ conda install pytorch torchvision -c pytorch
 c. Clone the mmdetection repository.
 
 ```shell
-git clone https://github.com/open-mmlab/mmdetection.git
-cd mmdetection
+git clone https://github.com/qinr/MRDet.git
+cd MRDet
 ```
 
 d. Install mmdetection (other dependencies will be installed automatically).
@@ -76,32 +76,18 @@ mmdetection
 ├── tools
 ├── configs
 ├── data
-│   ├── coco
-│   │   ├── annotations
-│   │   ├── train2017
-│   │   ├── val2017
-│   │   ├── test2017
-│   ├── cityscapes
-│   │   ├── annotations
-│   │   ├── train
-│   │   ├── val
-│   ├── VOCdevkit
-│   │   ├── VOC2007
-│   │   ├── VOC2012
-
-```
-The cityscapes annotations have to be converted into the coco format using the [cityscapesScripts](https://github.com/mcordts/cityscapesScripts) toolbox.
-We plan to provide an easy to use conversion script. For the moment we recommend following the instructions provided in the 
-[maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark/tree/master/maskrcnn_benchmark/data) toolbox. When using this script all images have to be moved into the same folder. On linux systems this can e.g. be done for the train images with:
-```shell
-cd data/cityscapes/
-mv train/*/* train/
+│   ├── DOTA
+│   │   ├── trainval1024
+|   |   |          ├── DOTA_trainval1024.json
+|   |   |          ├── images
+|   |   |          ├── labelTxt
+│   │   ├── test1024
+|   |   |          ├── DOTA_test1024.json
+|   |   |          ├── images
 ```
 
-### Scripts
+The DOTA images and labels have to be splitted using the code [here](https://github.com/CAPTAIN-WHU/DOTA_devkit). You can also use the scripts in DOTA_devkit/prepare_dota1.py to obtain the splitted dataset. If you use codes in DOTA_devkit/, you need to install packages following https://github.com/CAPTAIN-WHU/DOTA_devkit. The DOTA annotations should be converted into the coco format using the scripts in DOTA_devkit/DOTA2COCO.py.
 
-[Here](https://gist.github.com/hellock/bf23cd7348c727d69d48682cb6909047) is
-a script for setting up mmdetection with conda.
 
 ### Multiple versions
 
