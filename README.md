@@ -14,8 +14,9 @@ This project is released under the [Apache 2.0 license](LICENSE).
 
 ## Benchmark and Model Zoo
 
-You can find detailed configs in configs/mrdet
-The trained models are available at xxxxxxxx
+You can find detailed configs in configs/mrdet.
+
+The trained models are available at [Baidu Drive](https://pan.baidu.com/s/1r3wNoAxDaQZL2VUvL_Va5Q)8ckd 
 
 ## Installation
 
