@@ -16,9 +16,7 @@ This project is released under the [Apache 2.0 license](LICENSE).
 
 You can find detailed configs in configs/mrdet.
 
-The trained models are available at [Baidu Drive](https://pan.baidu.com/s/1_t7a8kCNQYCx8WsboZORKA) (2lx5).
-
-                                    [Google Drive](https://www.multcloud.com/share/4843a561-c378-44d3-9736-7798ed54e34f).
+The trained models are available at [Baidu Drive](https://pan.baidu.com/s/1_t7a8kCNQYCx8WsboZORKA) (2lx5) and [Google Drive](https://www.multcloud.com/share/4843a561-c378-44d3-9736-7798ed54e34f).
 
 ## Installation
 
