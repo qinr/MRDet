@@ -3,6 +3,8 @@
 
 ## Introduction
 
+This is the code **of MRDet: A Multihead Network for Accurate Rotated Object Detection in Aerial Images**(https://ieeexplore.ieee.org/document/9555822).
+
 The master branch works with **PyTorch 1.1** or higher.
 
 MRDet is based on mmdetection and AerialDetection(https://github.com/dingjiansw101/AerialDetection). 
@@ -33,25 +35,16 @@ Please see [GETTING_STARTED.md](docs/GETTING_STARTED.md) for the basic usage of 
 If you use this toolbox or benchmark in your research, please cite this project.
 
 ```
-@article{mmdetection,
-  title   = {{MMDetection}: Open MMLab Detection Toolbox and Benchmark},
-  author  = {Chen, Kai and Wang, Jiaqi and Pang, Jiangmiao and Cao, Yuhang and
-             Xiong, Yu and Li, Xiaoxiao and Sun, Shuyang and Feng, Wansen and
-             Liu, Ziwei and Xu, Jiarui and Zhang, Zheng and Cheng, Dazhi and
-             Zhu, Chenchen and Cheng, Tianheng and Zhao, Qijie and Li, Buyu and
-             Lu, Xin and Zhu, Rui and Wu, Yue and Dai, Jifeng and Wang, Jingdong
-             and Shi, Jianping and Ouyang, Wanli and Loy, Chen Change and Lin, Dahua},
-  journal= {arXiv preprint arXiv:1906.07155},
-  year={2019}
-}
-@inproceedings{xia2018dota,
-  title={DOTA: A large-scale dataset for object detection in aerial images},
-  author={Xia, Gui-Song and Bai, Xiang and Ding, Jian and Zhu, Zhen and Belongie, Serge and Luo, Jiebo and Datcu, Mihai and Pelillo, Marcello and Zhang, Liangpei},
-  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
-  pages={3974--3983},
-  year={2018}
-}
-
+@ARTICLE{MrDet,
+  author={Qin, Ran and Liu, Qingjie and Gao, Guangshuai and Huang, Di and Wang, Yunhong},
+  journal={IEEE Transactions on Geoscience and Remote Sensing}, 
+  title={MRDet: A Multihead Network for Accurate Rotated Object Detection in Aerial Images}, 
+  year={2021},
+  volume={},
+  number={},
+  pages={1-12},
+  doi={10.1109/TGRS.2021.3113473}}
+  
 ```
 
 
