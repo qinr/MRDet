@@ -3,7 +3,7 @@
 
 ## Introduction
 
-This is the code **of MRDet: A Multihead Network for Accurate Rotated Object Detection in Aerial Images**(https://ieeexplore.ieee.org/document/9555822).
+This is the code of **MRDet: A Multihead Network for Accurate Rotated Object Detection in Aerial Images**(https://ieeexplore.ieee.org/document/9555822).
 
 The master branch works with **PyTorch 1.1** or higher.
 
