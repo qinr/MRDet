@@ -5,9 +5,15 @@
 
 This is the code of **MRDet: A Multihead Network for Accurate Rotated Object Detection in Aerial Images**(https://ieeexplore.ieee.org/document/9555822).
 
+Performance comparison with others on DOTA:
+![image](https://user-images.githubusercontent.com/37435944/146871690-c7590181-e2aa-40a9-b7df-690bd70c48eb.png)
+
+![image](https://user-images.githubusercontent.com/37435944/146871779-944b2216-3026-4156-8b5e-65696b06ea60.png)
+
 The master branch works with **PyTorch 1.1** or higher.
 
 MRDet is based on mmdetection and AerialDetection(https://github.com/dingjiansw101/AerialDetection). 
+
 
 
 ## License
@@ -44,7 +50,6 @@ If you use this toolbox or benchmark in your research, please cite this project.
   number={},
   pages={1-12},
   doi={10.1109/TGRS.2021.3113473}}
-  
 ```
 
 
