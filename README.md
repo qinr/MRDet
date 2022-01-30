@@ -43,9 +43,8 @@ If you use this toolbox or benchmark in your research, please cite this project.
   author={Qin, Ran and Liu, Qingjie and Gao, Guangshuai and Huang, Di and Wang, Yunhong},
   journal={IEEE Transactions on Geoscience and Remote Sensing}, 
   title={MRDet: A Multihead Network for Accurate Rotated Object Detection in Aerial Images}, 
-  year={2021},
-  volume={},
-  number={},
+  year={2022},
+  volume={60},
   pages={1-12},
   doi={10.1109/TGRS.2021.3113473}}
 ```
